@@ -36,6 +36,20 @@ class mysqle extends mysqli {
         }
     }
     /**
+    * Class destructor.
+    * Close all prepared and opened statements
+    */
+    public function __desctruct()
+    {
+        foreach ($this->stmt as $id=>$stmt) {
+            if ($stmt instanceof mysqli_stmt) {
+                $stmt->close();
+            }
+            unset($this->stmt[$id]);
+        }
+        parent::__destruct();
+    }
+    /**
     * Method for prepare or get aleady prepared mysqli statement from local object cache.
     * @throws mysqle_sql_exception In case of some SQL-error in query text
     * @param string $alias Alias of prepared statement
