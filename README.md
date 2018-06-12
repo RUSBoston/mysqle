@@ -29,6 +29,37 @@ Method return true if query result have 1 or more rows.
     print_r($obj); // print test_class object with all property and $owner='myself'
 ```
 
+### Method mysqle->get_objects($query, $class_name='\stdClass', $construct_params=null)
+[Generator](http://php.net/manual/en/language.generators.php) for getting all objects from SQL-query or prepared statement.
+Can use in foreach(...) cycles
+
+#### Example
+```
+    $generator = $mysql->get_objects("SELECT * FROM objects", 'test_class',['myself']);
+    foreach ($generator as $indx=>$obj) {
+        print_r($obj); // print every object
+    }
+```
+
+### Method mysqle->get_row($query, &$row, $method='fetch_assoc')
+Method for getting first row from query result into $row and return true/false.
+
+#### Example
+```
+    $row = null;
+    $result = $mysql->get_row("SELECT * FROM objects WHERE id=1", $row, 'fetch_row');
+    print_r($row); // print test_class object with all property and $owner='myself'
+```
+
+### Method mysqle->get_rows($query, $method='fetch_assoc')
+Generator for getting all query resulting rows consistently.
+Can use in foreach(...) cycles
+```
+    $generator = $mysql->get_rows("SELECT * FROM objects", 'fetch_row');
+    foreach ($generator as $indx=>$row) {
+        print_r($row); // print every rows
+    }
+```
 
 ## Extended class mysqle_sql_exception
 ### Constructor mysqle_sql_exception->__construct($message=null, $code=null, $query=null, $previous=null)
