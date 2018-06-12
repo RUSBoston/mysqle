@@ -10,12 +10,23 @@ Method for prepare new **\mysqli_stmt** object or get already prepared from loca
 
 #### Example
 ```
-    $mysql = new RUSBoston\mysqle($host,$username,$password,$dbname);
+    $mysql = new mysqle($host,$username,$password,$dbname);
     $stmt = $mysql->get_stmt('get_by_id',"SELECT * FROM objects WHERE id=?"); // greate new mysqli_stmt object
     $stmt->bind_params('s',$id);
     $stmt->execute();
     unset($stmt);
     $stmt = $mysql->get_stmt('get_by_id'); // get already prepared statement with get_by_id alias
+```
+
+### Method mysqle->get_object($query, &$obj, $class_name='\stdClass', $construct_params=null)
+Method for fast get single object (first row result) from query result or from statement uxecute result.
+Method return true if query result have 1 or more rows.
+
+#### Example
+```
+    $obj = null;
+    $result = $mysql->get_object("SELECT * FROM objects WHERE id=1", $obj, 'test_object', ['myself']);
+    print_r($obj); // print test_class object with all property and $owner='myself'
 ```
 
 
@@ -29,7 +40,7 @@ Method for get last query text, wich generate this exception.
 #### Example
 ```
     try {
-        throw new myqle_sql_exception('Test exaception',0,'SELECT * FROM objects');
+        throw new myqle_sql_exception('Test exception',0,'SELECT * FROM objects');
     } catch (mysqle_sql_exception $me) {
         echo $me->getQuery(); // print SELECT * FROM objects
     }

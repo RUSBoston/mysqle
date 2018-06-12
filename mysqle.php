@@ -1,7 +1,8 @@
 <?php
 /**
-* Расширенный класс MySQLi Extended для более быстрой и удобной работы с запросами,
-* получение всех строк запроса через генераторы и т.д.
+* Extended class MySQLi (MySQLe) for faster and convenient work with mysqli class, queries,
+* obtaining all query result rows, generators, etc.
+* 
 * @package RUSBoston
 * @subpackage mysqle
 * @author Sergey Ivanov (RUSBoston)                         
@@ -15,6 +16,25 @@ class mysqle extends mysqli {
     * @var mysqli_stmt[]
     */
     protected $stmt = [];
+    /**
+    * Override parent class constructor, added throw mysqle_sql_exception in case of connection error.
+    * 
+    * @throws mysqle_sql_exception In case of server connection error
+    * @param {string|null} $host MySQL server hostname
+    * @param {string|null} $username MySQL server username
+    * @param {string|null} $passwd MySQL server user password
+    * @param {string|null} $dbname MySQL server database name
+    * @param {int|null} $port MySQL server port
+    * @param {string|null} $socket MySQL server socket
+    * @return mysqle
+    */
+    public function __construct($host=null, $username=null, $passwd=null, $dbname=null, $port=null, $socket=null)
+    {
+        parent::__construct($host, $username, $passwd, $dbname, $port, $socket);
+        if (mysqli_connect_errno()) {
+            throw new mysqle_sql_exception(mysqli_connect_error(), mysqli_connect_errno());
+        }
+    }
     /**
     * Method for prepare or get aleady prepared mysqli statement from local object cache.
     * @throws mysqle_sql_exception In case of some SQL-error in query text
@@ -66,7 +86,8 @@ class mysqle extends mysqli {
     }
     /**
     * Generator for getting all objects from SQL-query or prepared statement.
-    * Can use in foreach(...)
+    * Can use in foreach(...) cycles
+    * 
     * @see http://php.net/manual/en/language.generators.php
     * @throws mysqle_sql_exception In case of some SQL-error in query text
     * @param {string|mysqli_stmt} $query Text of SQL-query or prepared statement
@@ -96,11 +117,12 @@ class mysqle extends mysqli {
         $res->free();
     }
     /**
-    * Метод получения одной строки по запросу, в качестве результата метод отдаёт true/false
+    * Method for getting first row from query result into $row and return true/false.
     * 
-    * @param {string|mysqli_stmt} $query SQL-запрос
-    * @param {array|stdClass|null} $row возвращаемый массив с результатами
-    * @param string $method метод возврата результата: fetch_row, fetch_assoc, fetch_object
+    * @throws mysqle_sql_exception In case of some SQL-error in query text
+    * @param {string|mysqli_stmt} $query Text of SQL-query or prepared statement
+    * @param {array|stdClass|null} $row Returning array or stdClass with row columns
+    * @param string $method метод Method for returned result: fetch_row, fetch_assoc, fetch_object
     * @return bool
     */
     public function get_row($query, &$row, $method='fetch_assoc')
@@ -136,11 +158,13 @@ class mysqle extends mysqli {
         return $result;
     }
     /**
-    * Метод-генератор для получения всех результатов запроса последовательно.
-    * Используется в конструкциях foreach(...)
+    * Generator for getting all query resulting rows consistently.
+    * Can use in foreach(...) cycles
     * 
-    * @param {string|mysqli_stmt} $query SQL-запрос в виде текста или в виде подготовленного запроса
-    * @param string $method метод возврата результата: fetch_row, fetch_assoc, fetch_object
+    * @see http://php.net/manual/en/language.generators.php
+    * @throws mysqle_sql_exception In case of some SQL-error in query text
+    * @param {string|mysqli_stmt} $query Text of SQL-query or prepared statement
+    * @param string $method Method for returned result: fetch_row, fetch_assoc, fetch_object
     * @return mixed[]
     */
     public function get_rows($query, $method='fetch_assoc')
