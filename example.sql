@@ -1,0 +1,28 @@
+﻿/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+
+SET NAMES 'utf8';
+
+USE test;
+
+DROP TABLE IF EXISTS objects;
+
+USE test;
+
+CREATE TABLE objects (
+  id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  title varchar(255) DEFAULT NULL,
+  description varchar(255) DEFAULT NULL,
+  PRIMARY KEY (id)
+)
+ENGINE = INNODB,
+AUTO_INCREMENT = 3,
+AVG_ROW_LENGTH = 8192,
+CHARACTER SET utf8,
+COLLATE utf8_general_ci;
+
+
+INSERT INTO objects VALUES
+(1, 'Object1', 'Test object 1'),
+(2, 'Object2', 'Test object 2');
+
+/*!40014 SET FOREIGN_KEY_CHECKS = @OLD_FOREIGN_KEY_CHECKS */;
