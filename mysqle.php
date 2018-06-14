@@ -20,6 +20,7 @@ class mysqle extends mysqli {
     * Override parent class constructor, added throw mysqle_sql_exception in case of connection error.
     * 
     * @throws mysqle_sql_exception In case of server connection error
+    * @example example.php 26 1
     * @param {string|null} $host MySQL server hostname
     * @param {string|null} $username MySQL server username
     * @param {string|null} $passwd MySQL server user password
@@ -30,9 +31,11 @@ class mysqle extends mysqli {
     */
     public function __construct($host=null, $username=null, $passwd=null, $dbname=null, $port=null, $socket=null)
     {
-        parent::__construct($host, $username, $passwd, $dbname, $port, $socket);
+        @parent::__construct($host, $username, $passwd, $dbname, $port, $socket);
+        echo mysqli_connect_errno();
         if (mysqli_connect_errno()) {
-            throw new mysqle_sql_exception(mysqli_connect_error(), mysqli_connect_errno());
+            throw new mysqle_sql_exception('MySQL server connection error',0);
+            //throw new mysqle_sql_exception(mysqli_connect_error(), mysqli_connect_errno());
         }
     }
     /**
@@ -52,6 +55,7 @@ class mysqle extends mysqli {
     /**
     * Method for prepare or get aleady prepared mysqli statement from local object cache.
     * @throws mysqle_sql_exception In case of some SQL-error in query text
+    * @example example.php 26 5
     * @param string $alias Alias of prepared statement
     * @param {string|null} $query Text of prepared SQL query
     * @return mysqli_stmt
@@ -71,6 +75,7 @@ class mysqle extends mysqli {
     * Method return true if query result have 1 or more rows.
     * 
     * @throws mysqle_sql_exception In case of some SQL-error in query text 
+    * @example example.php 34 3
     * @param {string|mysqli_stmt} $query Text of SQL-query or prepared statement
     * @param {mixed|stdClass|null} $object object for return
     * @param string $class_name Name of returning object class
@@ -93,7 +98,16 @@ class mysqle extends mysqli {
             $res = $this->query($query);
         }
         if ($result = ($res->num_rows > 0)) {
-            $object = $res->fetch_object($class_name, $construct_params);
+            switch ($class_name) {
+                case 'stdClass':
+                    // no break
+                case '\stdClass':
+                    $object = $res->fetch_object($class_name);
+                    break;
+                default:
+                    $object = $res->fetch_object($class_name);
+                    break;                
+            }
         }
         $res->free();
         return $result;
@@ -104,6 +118,7 @@ class mysqle extends mysqli {
     * 
     * @see http://php.net/manual/en/language.generators.php
     * @throws mysqle_sql_exception In case of some SQL-error in query text
+    * @example example.php 44 4
     * @param {string|mysqli_stmt} $query Text of SQL-query or prepared statement
     * @param string $class_name Name of returning object class
     * @param {array|null} $construct_params Array of class constructor parameters
@@ -124,8 +139,19 @@ class mysqle extends mysqli {
             $res = $this->query($query);
         }
         if ($res->num_rows > 0) {
-            while ($object = $res->fetch_object($class_name, $construct_params)) {
-                yield $object;
+            switch ($class_name) {
+                case 'stdClass':
+                    // no break
+                case '\stdClass':
+                    while ($object = $res->fetch_object($class_name)) {
+                        yield $object;
+                    }
+                    break;
+                default:
+                    while ($object = $res->fetch_object($class_name, $construct_params ? $construct_params : [])) {
+                        yield $object;
+                    }
+                    break;                
             }
         }
         $res->free();
@@ -134,6 +160,7 @@ class mysqle extends mysqli {
     * Method for getting first row from query result into $row and return true/false.
     * 
     * @throws mysqle_sql_exception In case of some SQL-error in query text
+    * @example example.php 50 3
     * @param {string|mysqli_stmt} $query Text of SQL-query or prepared statement
     * @param {array|stdClass|null} $row Returning array or stdClass with row columns
     * @param string $method метод Method for returned result: fetch_row, fetch_assoc, fetch_object
@@ -177,6 +204,7 @@ class mysqle extends mysqli {
     * 
     * @see http://php.net/manual/en/language.generators.php
     * @throws mysqle_sql_exception In case of some SQL-error in query text
+    * @example example.php 55 4
     * @param {string|mysqli_stmt} $query Text of SQL-query or prepared statement
     * @param string $method Method for returned result: fetch_row, fetch_assoc, fetch_object
     * @return mixed[]

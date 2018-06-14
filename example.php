@@ -1,4 +1,5 @@
 <?php
+header('Content-Type: text/plain;charset=windows-1251');
 require('mysqle.php');
 require('mysqle_sql_exception.php');
 /**
@@ -13,22 +14,23 @@ class test_object
     /**
     * @internal
     */
-    public function __constructor($owner=null)
+    public function __construct($owner=null)
     {
         $this->owner = $owner;
     }
 }
 $host = 'localhost';
 $username = 'root';
-$password = 'admin';
+$password = 'vfqcrekm';
 $dbname = 'test';
 
 $mysql = new mysqle($host,$username,$password,$dbname);
 $stmt = $mysql->get_stmt('get_by_id',"SELECT * FROM objects WHERE id=?"); // create new mysqli_stmt object
-$stmt->bind_params('s',$id);
+$stmt->bind_param('s',$id);
 $stmt->execute();
 unset($stmt);
 $stmt = $mysql->get_stmt('get_by_id'); // get already prepared statement with get_by_id alias
+$stmt->free_result();
 
 // example of simple using get_object()
 $obj = null;
@@ -41,7 +43,7 @@ $result = $mysql->get_object("SELECT * FROM objects WHERE id=1", $obj, 'test_obj
 print_r($obj); // print test_class object with all property and $owner='myself'
 
 // example of advanced using of get_objects()
-$generator = $mysql->get_objects("SELECT * FROM objects", 'test_class',['myself']);
+$generator = $mysql->get_objects("SELECT * FROM objects", 'test_object', ['myself']);
 foreach ($generator as $indx=>$obj) {
     print_r($obj); // print every object
 }
@@ -59,7 +61,7 @@ foreach ($generator as $indx=>$row) {
 
 // example of using mysqle_sql_exception
 try {
-    throw new myqle_sql_exception('Test exception',0,'SELECT * FROM objects');
+    throw new mysqle_sql_exception('Test exception',0,'SELECT * FROM objects');
 } catch (mysqle_sql_exception $mse) {
     echo $mse->getQuery(); // print SELECT * FROM objects
 }  
