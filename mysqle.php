@@ -32,10 +32,8 @@ class mysqle extends mysqli {
     public function __construct($host=null, $username=null, $passwd=null, $dbname=null, $port=null, $socket=null)
     {
         @parent::__construct($host, $username, $passwd, $dbname, $port, $socket);
-        echo mysqli_connect_errno();
         if (mysqli_connect_errno()) {
-            throw new mysqle_sql_exception('MySQL server connection error',0);
-            //throw new mysqle_sql_exception(mysqli_connect_error(), mysqli_connect_errno());
+            throw new mysqle_sql_exception(mysqli_connect_error(), mysqli_connect_errno());
         }
     }
     /**
